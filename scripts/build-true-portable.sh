@@ -3,14 +3,15 @@ set -e
 
 echo "=== Building True Portable Self-Contained App for Ubuntu 24.04/26.04+ ==="
 
-PROJECT_DIR="/home/a/WebstormProjects/RufusNode"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 OUTPUT_FILE="$PROJECT_DIR/Rufus-4.15-x86_64.AppImage"
 DIST_DIR="$PROJECT_DIR/dist/linux-unpacked"
 
 if [ ! -d "$DIST_DIR" ]; then
-    echo "Directory $DIST_DIR does not exist. Running build..."
+    echo "Directory $DIST_DIR does not exist. Building unpacked dir..."
     cd "$PROJECT_DIR"
-    npm run build:appimage
+    npx electron-builder --linux dir --publish never
 fi
 
 TEMP_TAR=$(mktemp /tmp/rufus_payload_XXXXXX.tar.gz)
@@ -19,7 +20,7 @@ echo "Compressing unpacked application directory..."
 cd "$DIST_DIR"
 tar -czf "$TEMP_TAR" .
 
-echo "Creating self-extracting single-file portable executable with embedded icon and desktop metadata..."
+echo "Creating self-extracting single-file portable executable..."
 
 cat << 'HEADER_EOF' > "$OUTPUT_FILE"
 #!/bin/bash
