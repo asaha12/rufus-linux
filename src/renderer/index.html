@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rufus 4.15 for Linux</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Drag & Drop visual overlay -->
+  <div id="drag-drop-overlay">
+    <div>📁 Drop ISO / Disk Image here</div>
+  </div>
+
+  <div class="window-container">
+    <!-- Header / Banner -->
+    <header class="app-header">
+      <div class="header-left">
+        <img src="../assets/icon.svg" class="app-icon" alt="Rufus Icon">
+        <div class="app-title-group">
+          <div class="app-title">Rufus <span class="version-tag">4.15.2208</span> <span class="portable-badge">Portable</span></div>
+          <div class="app-subtitle">The Reliable USB Formatting Utility for Linux</div>
+        </div>
+      </div>
+      <div class="header-tools">
+        <button id="btn-hash-tool" class="tool-btn" title="Compute Image Hashes (MD5, SHA1, SHA256)">#</button>
+        <button id="btn-settings-tool" class="tool-btn" title="Settings">⚙</button>
+        <button id="btn-about-tool" class="tool-btn" title="About Rufus">ℹ</button>
+      </div>
+    </header>
+
+    <!-- Main Form Scroll Area -->
+    <div class="main-content">
+
+      <!-- Group 1: Drive Properties -->
+      <fieldset class="group-box">
+        <legend class="group-legend">Drive Properties</legend>
+        
+        <!-- Device Selection -->
+        <div class="form-row">
+          <label for="select-device" class="form-label">Device</label>
+          <div class="input-with-action">
+            <select id="select-device" class="form-control"></select>
+            <button id="btn-refresh-drives" class="btn-icon" title="Refresh drive list">🔄</button>
+          </div>
+        </div>
+
+        <!-- Advanced Drive Properties Expander (Collapsed by default, like Windows Rufus) -->
+        <div class="expander-row">
+          <button id="btn-toggle-adv-drive" class="expander-btn">
+            <span class="expander-arrow" id="arrow-adv-drive">►</span> Show advanced drive properties
+          </button>
+        </div>
+        <div id="adv-drive-panel" class="collapsible-panel">
+          <div class="checkbox-row">
+            <label class="checkbox-label">
+              <input type="checkbox" id="chk-list-all-disks"> List USB Hard Drives & All Disks
+            </label>
+          </div>
+          <div class="checkbox-row">
+            <label class="checkbox-label">
+              <input type="checkbox" id="chk-old-bios-fixes"> Add fixes for old BIOSes (extra partition, align, etc.)
+            </label>
+          </div>
+          <div class="checkbox-row">
+            <label class="checkbox-label">
+              <input type="checkbox" id="chk-rufus-mbr"> Use Rufus MBR with BIOS ID
+            </label>
+          </div>
+        </div>
+
+        <!-- Boot Selection -->
+        <div class="form-row">
+          <label for="select-boot" class="form-label">Boot selection</label>
+          <div class="boot-input-group">
+            <select id="select-boot" class="form-control">
+              <option value="iso">Disk or ISO image (Please select)</option>
+              <option value="freedos">FreeDOS</option>
+              <option value="msdos">MS-DOS</option>
+              <option value="nonbootable">Non-bootable</option>
+              <option value="syslinux">Syslinux v6.04</option>
+              <option value="uefintfs">UEFI:NTFS</option>
+            </select>
+            <div class="boot-action-buttons">
+              <button id="btn-select-iso" class="btn btn-primary">SELECT</button>
+              <button id="btn-download-iso" class="btn btn-secondary" title="Download popular Linux or Windows ISOs">DOWNLOAD</button>
+              <input type="file" id="hidden-file-input" style="display: none;" accept=".iso,.img,.vhd,.vhdx,.raw,.bin,.gz,.xz,.zst">
+            </div>
+          </div>
+        </div>
+
+        <!-- Selected ISO Path & Info Display -->
+        <div id="iso-info-card" class="iso-info-box hidden">
+          <div class="iso-info-header">
+            <span class="iso-name" id="iso-name-display">ubuntu-24.04-desktop.iso</span>
+            <span class="iso-size" id="iso-size-display">5.8 GB</span>
+          </div>
+          <div class="iso-tags">
+            <span class="badge" id="iso-os-badge">Ubuntu Linux</span>
+            <span class="badge badge-info" id="iso-boot-badge">UEFI + BIOS</span>
+          </div>
+        </div>
+
+        <!-- Image Option (Windows / Standard) -->
+        <div class="form-row" id="row-image-option" style="display: none;">
+          <label for="select-image-option" class="form-label">Image option</label>
+          <select id="select-image-option" class="form-control">
+            <option value="standard">Standard Windows / ISO installation</option>
+            <option value="wintogo">Windows To Go</option>
+          </select>
+        </div>
+
+        <!-- Partition Scheme & Target System -->
+        <div class="form-grid-2">
+          <div class="form-row">
+            <label for="select-partition" class="form-label">Partition scheme</label>
+            <select id="select-partition" class="form-control">
+              <option value="GPT">GPT</option>
+              <option value="MBR">MBR</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="select-target" class="form-label">Target system</label>
+            <select id="select-target" class="form-control">
+              <option value="uefi">UEFI (non CSM)</option>
+              <option value="bios">BIOS (or UEFI-CSM)</option>
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Group 2: Format Options -->
+      <fieldset class="group-box">
+        <legend class="group-legend">Format Options</legend>
+
+        <!-- Volume Label -->
+        <div class="form-row">
+          <label for="input-volume-label" class="form-label">Volume label</label>
+          <input type="text" id="input-volume-label" class="form-control" value="RUFUS_USB" maxlength="32">
+        </div>
+
+        <!-- File System & Cluster Size -->
+        <div class="form-grid-2">
+          <div class="form-row">
+            <label for="select-filesystem" class="form-label">File system</label>
+            <select id="select-filesystem" class="form-control">
+              <option value="FAT32">FAT32 (Default)</option>
+              <option value="NTFS">NTFS</option>
+              <option value="exFAT">exFAT</option>
+              <option value="ext4">ext4</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="select-clustersize" class="form-label">Cluster size</label>
+            <select id="select-clustersize" class="form-control">
+              <option value="4096">4096 bytes (Default)</option>
+              <option value="8192">8192 bytes</option>
+              <option value="16384">16 kilobytes</option>
+              <option value="32768">32 kilobytes</option>
+              <option value="65536">64 kilobytes</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Advanced Format Options Expander (Collapsed by default, like Windows Rufus) -->
+        <div class="expander-row">
+          <button id="btn-toggle-adv-format" class="expander-btn">
+            <span class="expander-arrow" id="arrow-adv-format">►</span> Show advanced format options
+          </button>
+        </div>
+        <div id="adv-format-panel" class="collapsible-panel">
+          <div class="checkbox-row">
+            <label class="checkbox-label">
+              <input type="checkbox" id="chk-quick-format" checked> Quick format
+            </label>
+          </div>
+          <div class="checkbox-row">
+            <label class="checkbox-label">
+              <input type="checkbox" id="chk-extended-label" checked> Create extended label and icon files
+            </label>
+          </div>
+          <div class="checkbox-row flex-row">
+            <label class="checkbox-label">
+              <input type="checkbox" id="chk-bad-blocks"> Check device for bad blocks
+            </label>
+            <select id="select-bad-blocks-passes" class="form-control mini-select" disabled>
+              <option value="1">1 Pass</option>
+              <option value="2">2 Passes</option>
+              <option value="3">3 Passes</option>
+              <option value="4">4 Passes</option>
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Status Section (Always visible, clean and docked) -->
+      <fieldset class="group-box status-box">
+        <legend class="group-legend">Status</legend>
+
+        <div class="status-header">
+          <span id="status-label" class="status-label">Ready</span>
+          <span id="status-percentage" class="status-percentage">0%</span>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar-container">
+          <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%;"></div>
+        </div>
+
+        <!-- Progress Metrics -->
+        <div class="progress-metrics" id="progress-metrics">
+          <span id="metric-speed">0.0 MB/s</span>
+          <span id="metric-eta">ETA: --:--:--</span>
+          <span id="metric-elapsed">Elapsed: 00:00:00</span>
+        </div>
+      </fieldset>
+
+    </div>
+
+    <!-- Bottom Actions Bar -->
+    <footer class="app-footer">
+      <div class="footer-left">
+        <button id="btn-toggle-log" class="footer-btn log-btn" title="Show Activity Log">📋 Log</button>
+      </div>
+      <div class="footer-right">
+        <button id="btn-start" class="btn btn-action-start">START</button>
+        <button id="btn-close" class="btn btn-action-close">CLOSE</button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- MODAL: In-App Notice Dialog (Replaces broken window.alert) -->
+  <div id="modal-notice" class="modal-overlay hidden">
+    <div class="modal-dialog notice-dialog">
+      <div class="notice-body">
+        <div class="notice-icon" id="notice-icon">ℹ️</div>
+        <p class="notice-message" id="notice-message">Notification message</p>
+      </div>
+      <div class="modal-footer" style="justify-content: center;">
+        <button id="btn-notice-ok" class="btn btn-primary" style="min-width: 80px;">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Activity Log Window -->
+  <div id="modal-log" class="modal-overlay hidden">
+    <div class="modal-dialog log-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Rufus Activity Log</h3>
+        <button class="modal-close-btn" id="btn-close-log">&times;</button>
+      </div>
+      <div class="modal-body">
+        <textarea id="log-textarea" class="log-view" readonly></textarea>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-copy-log" class="btn btn-secondary">Copy Log</button>
+        <button id="btn-clear-log" class="btn btn-secondary">Clear</button>
+        <button id="btn-dismiss-log" class="btn btn-primary">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Hash Calculation -->
+  <div id="modal-hash" class="modal-overlay hidden">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Image Hash Checksum</h3>
+        <button class="modal-close-btn" id="btn-close-hash">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="hash-loading-view" class="hash-loading">
+          <p>Computing checksums for selected image...</p>
+          <div class="progress-bar-container" style="margin-top: 8px;">
+            <div id="hash-progress-fill" class="progress-bar-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+        <div id="hash-results-view" class="hash-results hidden">
+          <div class="form-row">
+            <label class="form-label">MD5:</label>
+            <div class="input-with-action">
+              <input type="text" id="hash-md5" class="form-control" style="font-family: monospace;" readonly>
+              <button class="btn btn-secondary copy-hash-btn" data-target="hash-md5">Copy</button>
+            </div>
+          </div>
+          <div class="form-row">
+            <label class="form-label">SHA1:</label>
+            <div class="input-with-action">
+              <input type="text" id="hash-sha1" class="form-control" style="font-family: monospace;" readonly>
+              <button class="btn btn-secondary copy-hash-btn" data-target="hash-sha1">Copy</button>
+            </div>
+          </div>
+          <div class="form-row">
+            <label class="form-label">SHA256:</label>
+            <div class="input-with-action">
+              <input type="text" id="hash-sha256" class="form-control" style="font-family: monospace;" readonly>
+              <button class="btn btn-secondary copy-hash-btn" data-target="hash-sha256">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-dismiss-hash" class="btn btn-primary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Windows Customization (User Experience) -->
+  <div id="modal-windows-tweaks" class="modal-overlay hidden">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Windows User Experience</h3>
+        <button class="modal-close-btn" id="btn-close-tweaks">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: 8px;">Customize Windows installation options for this USB drive:</p>
+        <div class="checkbox-row">
+          <label class="checkbox-label">
+            <input type="checkbox" id="tweak-tpm" checked>
+            Remove requirement for 4GB+ RAM, Secure Boot and TPM 2.0
+          </label>
+        </div>
+        <div class="checkbox-row">
+          <label class="checkbox-label">
+            <input type="checkbox" id="tweak-account" checked>
+            Remove requirement for an online Microsoft account
+          </label>
+        </div>
+        <div class="checkbox-row">
+          <label class="checkbox-label">
+            <input type="checkbox" id="tweak-localuser" checked>
+            Create a local account with username:
+          </label>
+          <input type="text" id="tweak-username" class="form-control" style="width: 100px; height: 22px; font-size: 11px;" value="User">
+        </div>
+        <div class="checkbox-row">
+          <label class="checkbox-label">
+            <input type="checkbox" id="tweak-regional" checked>
+            Set regional options to the same values as this user's
+          </label>
+        </div>
+        <div class="checkbox-row">
+          <label class="checkbox-label">
+            <input type="checkbox" id="tweak-privacy" checked>
+            Disable data collection (Skip privacy questions)
+          </label>
+        </div>
+        <div class="checkbox-row">
+          <label class="checkbox-label">
+            <input type="checkbox" id="tweak-bitlocker" checked>
+            Disable BitLocker automatic device encryption
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-apply-tweaks" class="btn btn-primary">OK</button>
+        <button id="btn-cancel-tweaks" class="btn btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ISO Downloader -->
+  <div id="modal-downloader" class="modal-overlay hidden">
+    <div class="modal-dialog download-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Download Operating System ISO</h3>
+        <button class="modal-close-btn" id="btn-close-downloader">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="download-list" id="download-list-container">
+          <!-- Populated dynamically via JS -->
+        </div>
+
+        <div id="download-progress-container" class="hidden" style="margin-top: 8px;">
+          <div class="status-header">
+            <span id="dl-status-title">Downloading...</span>
+            <span id="dl-status-percent">0%</span>
+          </div>
+          <div class="progress-bar-container">
+            <div id="dl-progress-fill" class="progress-bar-fill" style="width: 0%;"></div>
+          </div>
+          <div class="progress-metrics">
+            <span id="dl-metric-speed">0 MB/s</span>
+            <span id="dl-metric-downloaded">0 MB / 0 MB</span>
+            <span id="dl-metric-eta">ETA: --:--</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel-dl" class="btn btn-secondary hidden">Cancel Download</button>
+        <button id="btn-dismiss-downloader" class="btn btn-secondary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Confirmation / Warning Alert -->
+  <div id="modal-confirm" class="modal-overlay hidden">
+    <div class="modal-dialog warning-dialog">
+      <div class="warning-icon-col">⚠️</div>
+      <div class="warning-content-col">
+        <h4 class="warning-title">WARNING: ALL DATA ON DEVICE WILL BE DESTROYED!</h4>
+        <p class="warning-body" id="confirm-device-msg">
+          All data on the selected device will be deleted. To continue with this operation, click OK. To quit click CANCEL.
+        </p>
+        <div class="warning-buttons">
+          <button id="btn-confirm-ok" class="btn btn-primary alert-btn">OK</button>
+          <button id="btn-confirm-cancel" class="btn btn-secondary alert-btn">CANCEL</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Settings Dialog -->
+  <div id="modal-settings" class="modal-overlay hidden">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Rufus Settings</h3>
+        <button class="modal-close-btn" id="btn-close-settings">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="checkbox-row">
+          <label class="checkbox-label">
+            <input type="checkbox" id="setting-auto-poll" checked> Check for device changes automatically (every 2s)
+          </label>
+        </div>
+        <div class="checkbox-row">
+          <label class="checkbox-label">
+            <input type="checkbox" id="setting-verbose-log" checked> Enable verbose debug output in log
+          </label>
+        </div>
+        <div class="checkbox-row">
+          <label class="checkbox-label">
+            <input type="checkbox" id="setting-verify" checked> Verify data integrity after write
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-dismiss-settings" class="btn btn-primary">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: About Dialog -->
+  <div id="modal-about" class="modal-overlay hidden">
+    <div class="modal-dialog about-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">About Rufus for Linux</h3>
+        <button class="modal-close-btn" id="btn-close-about">&times;</button>
+      </div>
+      <div class="modal-body about-body">
+        <img src="../assets/icon.svg" class="about-icon" alt="Rufus">
+        <h4>Rufus 4.15 for Linux (Portable)</h4>
+        <p class="about-desc">The Reliable USB Formatting Utility</p>
+        <p class="about-meta">Inspired by Pete Batard's Rufus (https://rufus.ie)<br>Designed for Ubuntu &amp; Linux distributions</p>
+        <p class="about-license">Licensed under GNU GPL v3</p>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-dismiss-about" class="btn btn-primary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Rufus (Portable)
+Comment=The Reliable USB Formatting Utility for Linux
+Exec=/home/a/WebstormProjects/RufusNode/Rufus-4.15-x86_64.AppImage
+Icon=/home/a/WebstormProjects/RufusNode/src/assets/icon.png
+Terminal=false
+Type=Application
+Categories=System;Utility;
+StartupNotify=true

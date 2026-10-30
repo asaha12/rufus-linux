@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Production builds (use GitHub Releases for distributing .AppImage and .deb)
+dist/
+*.AppImage
+*.deb
+
+# Windows binary
+*.exe
+*.ico
+
+# IDE & OS files
+.idea/
+.vscode/
+.DS_Store
+*.log
+
+# Temporary test artifacts
+test_fixtures/
+*.tmp

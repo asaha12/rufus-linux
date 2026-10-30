@@ -1,0 +1,56 @@
+{
+  "name": "rufus",
+  "productName": "Rufus",
+  "version": "4.15.0",
+  "description": "The Reliable USB Formatting Utility for Linux (Portable)",
+  "homepage": "https://rufus.ie",
+  "author": {
+    "name": "Rufus Linux Team",
+    "email": "support@rufus.ie"
+  },
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --linux AppImage deb",
+    "build:appimage": "electron-builder --linux AppImage",
+    "build:deb": "electron-builder --linux deb"
+  },
+  "keywords": ["rufus", "usb", "bootable", "iso", "formatter", "linux", "ubuntu"],
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "electron": "^45.1.0",
+    "electron-builder": "^26.18.0"
+  },
+  "build": {
+    "appId": "ie.rufus.rufus-linux",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "build/icon.png",
+      "category": "System;Utility;",
+      "maintainer": "Rufus Linux Team <support@rufus.ie>",
+      "synopsis": "Create bootable USB drives the easy way",
+      "description": "Rufus is a utility that helps format and create bootable USB flash drives, such as USB keys/pendrives, memory sticks, etc."
+    },
+    "appImage": {
+      "artifactName": "Rufus-4.15-x86_64.AppImage"
+    },
+    "deb": {
+      "artifactName": "rufus_4.15_amd64.deb",
+      "depends": [
+        "libc6",
+        "parted",
+        "dosfstools"
+      ]
+    }
+  }
+}
