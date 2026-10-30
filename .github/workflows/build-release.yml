@@ -42,7 +42,7 @@ jobs:
         with:
           name: rufus-linux-binaries
           path: |
-            dist/*.AppImage
+            Rufus-4.15-x86_64.AppImage
             dist/*.deb
 
       - name: Release Assets
@@ -50,7 +50,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            dist/*.AppImage
+            Rufus-4.15-x86_64.AppImage
             dist/*.deb
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

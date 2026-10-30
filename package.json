@@ -12,11 +12,19 @@
   "main": "src/main/main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --linux AppImage deb --publish never",
-    "build:appimage": "electron-builder --linux AppImage --publish never",
+    "build": "electron-builder --linux dir deb --publish never && bash scripts/build-true-portable.sh",
+    "build:appimage": "electron-builder --linux dir && bash scripts/build-true-portable.sh",
     "build:deb": "electron-builder --linux deb --publish never"
   },
-  "keywords": ["rufus", "usb", "bootable", "iso", "formatter", "linux", "ubuntu"],
+  "keywords": [
+    "rufus",
+    "usb",
+    "bootable",
+    "iso",
+    "formatter",
+    "linux",
+    "ubuntu"
+  ],
   "license": "GPL-3.0",
   "devDependencies": {
     "electron": "^45.1.0",
@@ -33,7 +41,7 @@
     ],
     "linux": {
       "target": [
-        "AppImage",
+        "dir",
         "deb"
       ],
       "icon": "build/icon.png",
@@ -42,9 +50,6 @@
       "maintainer": "Rufus Linux Team <support@rufus.ie>",
       "synopsis": "Create bootable USB drives the easy way",
       "description": "Rufus is a utility that helps format and create bootable USB flash drives, such as USB keys/pendrives, memory sticks, etc."
-    },
-    "appImage": {
-      "artifactName": "Rufus-4.15-x86_64.AppImage"
     },
     "deb": {
       "artifactName": "rufus_4.15_amd64.deb",
