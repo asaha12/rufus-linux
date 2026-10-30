@@ -4,6 +4,7 @@
   "version": "4.15.0",
   "description": "The Reliable USB Formatting Utility for Linux (Portable)",
   "homepage": "https://rufus.ie",
+  "desktopName": "rufus.desktop",
   "author": {
     "name": "Rufus Linux Team",
     "email": "support@rufus.ie"
@@ -11,9 +12,9 @@
   "main": "src/main/main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --linux AppImage deb",
-    "build:appimage": "electron-builder --linux AppImage",
-    "build:deb": "electron-builder --linux deb"
+    "build": "electron-builder --linux AppImage deb --publish never",
+    "build:appimage": "electron-builder --linux AppImage --publish never",
+    "build:deb": "electron-builder --linux deb --publish never"
   },
   "keywords": ["rufus", "usb", "bootable", "iso", "formatter", "linux", "ubuntu"],
   "license": "GPL-3.0",
@@ -37,6 +38,7 @@
       ],
       "icon": "build/icon.png",
       "category": "System;Utility;",
+      "syncDesktopName": true,
       "maintainer": "Rufus Linux Team <support@rufus.ie>",
       "synopsis": "Create bootable USB drives the easy way",
       "description": "Rufus is a utility that helps format and create bootable USB flash drives, such as USB keys/pendrives, memory sticks, etc."
